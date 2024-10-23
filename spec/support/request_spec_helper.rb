@@ -1,32 +1,18 @@
+# spec/support/request_spec_helper.rb
 module RequestSpecHelper
-  include Warden::Test::ControllerHelpers
-
-  def self.included(base)
-    base.before(:each) { Warden.test_node! }
-    base.after(:each) { Warden.test_reset! }
+  def sign_in_user(user)
+    sign_in(user)  # Provided by Devise::Test::IntegrationHelpers
   end
 
-  def sign_in(resource)
-    login_as(resource, scope: warden_scope(resource))
-    resource
-  end
-
-  def sign_out(resource)
-    logout(warden_scope(resource))
+  def sign_out_user
+    sign_out(:user)  # Provided by Devise::Test::IntegrationHelpers
   end
 
   def json
-    JSON.parse(response.body).with_indifferent_access
-  end
-
-  private
-
-  def warden_scope(resource)
-    resource.class.name.underscore.to_sym
+    JSON.parse(response.body)
   end
 end
 
-Rspec.configure do |config|
+RSpec.configure do |config|
   config.include RequestSpecHelper, type: :request
-  config.before(:each, type: :request) { host! "my_app.test"}
 end
